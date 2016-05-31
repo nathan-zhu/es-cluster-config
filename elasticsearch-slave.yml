@@ -1,0 +1,193 @@
+# ======================== Elasticsearch Configuration =========================
+#
+# NOTE: Elasticsearch comes with reasonable defaults for most settings.
+#       Before you set out to tweak and tune the configuration, make sure you
+#       understand what are you trying to accomplish and the consequences.
+#
+# The primary way of configuring a node is via this file. This template lists
+# the most important settings you may want to configure for a production cluster.
+#
+# Please see the documentation for further information on configuration options:
+# <http://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration.html>
+#
+# ---------------------------------- Cluster -----------------------------------
+#
+# Use a descriptive name for your cluster:
+#
+cluster.name: GZ-EScluster
+#
+# ------------------------------------ Node ------------------------------------
+#
+# Use a descriptive name for the node:
+#
+node.name: ESnode-3
+#
+# Add custom attributes to the node:
+#
+# node.rack: r1
+#
+# ----------------------------------- Paths ------------------------------------
+#
+# Path to directory where to store the data (separate multiple locations by comma):
+#
+path.data: /data1/service_data/elasticsearch
+#
+# Path to log files:
+#
+# path.logs: /path/to/logs
+#
+# ----------------------------------- Memory -----------------------------------
+#
+# Lock the memory on startup:
+#
+bootstrap.mlockall: true
+#
+# Make sure that the `ES_HEAP_SIZE` environment variable is set to about half the memory
+# available on the system and that the owner of the process is allowed to use this limit.
+#
+# Elasticsearch performs poorly when the system is swapping the memory.
+#
+# ---------------------------------- Network -----------------------------------
+#
+# Set the bind address to a specific IP (IPv4 or IPv6):
+#
+network.host: 10.216.90.225
+#node.master: true
+node.data: true
+#
+# Set a custom port for HTTP:
+#
+http.port: 9200
+#
+# For more information, see the documentation at:
+# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html>
+#
+# --------------------------------- Discovery ----------------------------------
+#
+# Pass an initial list of hosts to perform discovery when new node is started:
+# The default list of hosts is ["127.0.0.1", "[::1]"]
+#
+# discovery.zen.ping.unicast.hosts: ["host1", "host2"]
+#
+# Prevent the "split brain" by configuring the majority of nodes (total number of nodes / 2 + 1):
+#
+# discovery.zen.minimum_master_nodes: 3
+#
+# For more information, see the documentation at:
+# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html>
+#
+# ---------------------------------- Gateway -----------------------------------
+#
+# Block initial recovery after a full cluster restart until N nodes are started:
+#
+# gateway.recover_after_nodes: 3
+#
+# For more information, see the documentation at:
+# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-gateway.html>
+#
+# ---------------------------------- Various -----------------------------------
+#
+# Disable starting multiple nodes on a single system:
+#
+# node.max_local_storage_nodes: 1
+#
+# Require explicit names when deleting indices:
+#
+# action.destructive_requires_name: true
+#
+# 分片数量，推荐分片数*副本数=集群数量
+# 分片会带来额外的分割和合并的损耗，理论上分片数越少，搜索的效率越高
+http.cors.enabled: true
+index.number_of_shards: 3
+index.number_of_replicas: 1
+# # 缓存类型设置为Soft Reference，只有当内存不够时才会进行回收
+index.cache.field.max_size: 50000
+index.cache.field.expire: 10m
+index.cache.field.type: soft
+
+##Watch Out for delete_all_indices!
+action.disable_delete_all_indices: true
+
+##################################################################
+# /etc/elasticsearch/elasticsearch.yml
+#
+# Base configuration for a write heavy cluster
+#
+
+# Cluster / Node Basics
+##cluster.name: logng
+
+# Node can have abritrary attributes we can use for routing
+##node.name: logsearch-01
+##node.datacenter: amsterdam
+
+# Force all memory to be locked, forcing the JVM to never swap
+#bootstrap.mlockall: true
+
+## Threadpool Settings ##
+
+# Search pool
+threadpool.search.type: fixed
+threadpool.search.size: 20
+threadpool.search.queue_size: 100
+
+# Bulk pool
+threadpool.bulk.type: fixed
+threadpool.bulk.size: 60
+threadpool.bulk.queue_size: 300
+
+# Index pool
+threadpool.index.type: fixed
+threadpool.index.size: 20
+threadpool.index.queue_size: 100
+
+# Indices settings
+indices.memory.index_buffer_size: 30%
+indices.memory.min_shard_index_buffer_size: 12mb
+indices.memory.min_index_buffer_size: 96mb
+
+# Cache Sizes
+#indices.fielddata.cache.size: 15%
+indices.fielddata.cache.size: 25%
+indices.fielddata.cache.expire: 6h
+indices.cache.filter.size: 15%
+indices.cache.filter.expire: 6h
+
+# Indexing Settings for Writes
+index.refresh_interval: 30s
+#index.refresh_interval: -1
+index.translog.flush_threshold_ops: 50000
+
+discovery.zen.fd.ping_timeout: 30s
+# Minimum nodes alive to constitute an operational cluster
+discovery.zen.minimum_master_nodes: 2
+
+index.max_result_window: 500000
+
+# Unicast Discovery (disable multicast)
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: [ "10.1.192.32:9300", "10.1.192.32:9302", "10.1.192.31:9300", "10.1.192.31:9302" ]
+
+marvel.agent.enabled: false
+#marvel.agent.exporter.es.hosts: ["10.216.90.241:9200"]
+
+script.inline: on
+script.indexed: on
+script.file: on
+
+index.search.slowlog.threshold.query.warn: 1s
+index.search.slowlog.threshold.query.info: 0ms
+index.search.slowlog.threshold.query.debug: 0ms
+index.search.slowlog.threshold.query.trace: 0ms
+
+index.search.slowlog.threshold.fetch.warn: 1s
+index.search.slowlog.threshold.fetch.info: 0ms
+index.search.slowlog.threshold.fetch.debug: 0ms
+index.search.slowlog.threshold.fetch.trace: 0ms
+
+index.indexing.slowlog.threshold.index.warn: 10s
+index.indexing.slowlog.threshold.index.info: 5s
+index.indexing.slowlog.threshold.index.debug: 2s
+index.indexing.slowlog.threshold.index.trace: 500ms
+index.indexing.slowlog.level: info
+index.indexing.slowlog.source: false
